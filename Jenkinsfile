@@ -41,6 +41,33 @@ pipeline {
             }
         }
 
+        stage('Check Kubernetes Connection') {
+    steps {
+        sh '''
+        echo "===== USER ====="
+        whoami
+
+        echo "===== HOME ====="
+        echo $HOME
+
+        echo "===== KUBECONFIG ====="
+        echo $KUBECONFIG
+
+        echo "===== CONTEXT ====="
+        kubectl config current-context || true
+
+        echo "===== CONFIG ====="
+        kubectl config view || true
+
+        echo "===== NODES ====="
+        kubectl get nodes || true
+
+        echo "===== CLUSTER INFO ====="
+        kubectl cluster-info || true
+        '''
+    }
+}
+
        stage('Deploy to Minikube Kubernetes') {
     steps {
         script {
