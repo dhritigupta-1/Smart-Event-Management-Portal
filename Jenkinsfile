@@ -5,7 +5,7 @@ pipeline {
         IMAGE_NAME = 'event'
         IMAGE_TAG = 'v1'
         DOCKER_HUB_REPO = 'dhritigupta/event'
-        DOCKER_HUB_CREDENTIALS_ID = 'docker-hub-credentials'
+        DOCKER_HUB_CREDENTIALS_ID = 'Docker_Login'
     }
 
     stages {
@@ -27,7 +27,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 echo "Building Docker image: ${DOCKER_HUB_REPO}:${IMAGE_TAG}"
-                sh "docker build -t ${DOCKER_HUB_REPO}:${IMAGE_TAG} -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+                sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
             }
         }
 
