@@ -1,7 +1,5 @@
 # Smart Event Management Portal - DevOps CI/CD Deployment Project
 
-![EventPortal Banner](https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1200&auto=format&fit=crop&q=80)
-
 ## Overview
 **Smart Event Management Portal** is an end-to-end containerized web application built for **ABC Solutions Pvt. Ltd.** to modernize and automate event bookings, user management, analytics, and deployments using **Docker**, **Minikube (Kubernetes)**, and **Jenkins CI/CD Pipelines**.
 
@@ -14,16 +12,6 @@
 - Event Browsing & Ticket Booking system.
 - User Booking History & Admin Management Panel (Add/Delete Events).
 - Base Dockerfile (`eventportal:v1`), Minikube deployment, and automated test suite.
-
-### 🌓 Version 2 (`v2` - Theme & Search Filtering)
-- Dynamic **Light / Dark Mode Theme Switcher** with smooth CSS transitions.
-- Real-time **Event Search** bar & **Category Filter Pills** (Tech, Music, Design, Business).
-- Docker image tag `eventportal:v2` with zero-downtime rolling updates in Minikube.
-
-### 📊 Version 3 (`v3` - Analytics & Innovation Features)
-- **Live Analytics Dashboard**: Visual ticket revenue metrics & animated CSS distribution charts.
-- **Interactive Toast Notification System**: Instant feedback for bookings and user actions.
-- Docker image tag `eventportal:v3` & automated rollback pipeline integration.
 
 ---
 
