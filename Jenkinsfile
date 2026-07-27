@@ -45,10 +45,10 @@ pipeline {
             steps {
                 echo "Deploying version ${IMAGE_TAG} to Minikube..."
                 // Step 1: Create or update Minikube deployment
-                sh "kubectl create deployment ${IMAGE_NAME} --image=${DOCKER_HUB_REPO}:${IMAGE_TAG} --dry-run=client -o yaml | kubectl apply -f -"
+                sh "kubectl create deployment ${IMAGE_NAME} --image=${DOCKER_HUB_REPO}:${IMAGE_TAG}"
                 
                 // Step 2: Expose deployment via NodePort service if not already created
-                sh "kubectl expose deployment ${IMAGE_NAME} --type=NodePort --port=3000 --dry-run=client -o yaml | kubectl apply -f -"
+                sh "kubectl expose deployment ${IMAGE_NAME} --type=NodePort --port=3000 "
                 
                 // Step 3: Trigger zero-downtime rolling update
                 sh "kubectl set image deployment/${IMAGE_NAME} ${IMAGE_NAME}=${DOCKER_HUB_REPO}:${IMAGE_TAG}"
