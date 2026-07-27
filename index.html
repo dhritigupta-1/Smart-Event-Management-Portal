@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Event Management Portal | ABC Solutions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="logo" onclick="showSection('eventsSection')">
+        <span class="logo-icon">⚡</span>
+        <span class="logo-text">Event<span class="highlight">Pulse</span></span>
+      </div>
+
+      <div class="nav-actions">
+        <div class="auth-buttons" id="authContainer">
+          <button class="btn btn-outline" onclick="openModal('loginModal')">Login</button>
+          <button class="btn btn-primary" onclick="openModal('registerModal')">Register</button>
+        </div>
+
+        <div class="user-profile hidden" id="userProfile">
+          <span class="user-greeting">Hi, <strong id="userName">User</strong></span>
+          <button class="btn btn-sm btn-outline" onclick="showSection('myBookingsSection')">My Bookings</button>
+          <button class="btn btn-sm btn-admin hidden" id="adminNavBtn" onclick="showSection('adminSection')">Admin Panel</button>
+          <button class="btn btn-sm btn-secondary" onclick="logout()">Logout</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="hero">
+    <div class="hero-content">
+      <h1 class="hero-title">Experience Extraordinary <span class="gradient-text">Events & Tech Summits</span></h1>
+      <p class="hero-subtitle">Book tickets, manage upcoming conferences, and join thousands of tech enthusiasts seamlessly.</p>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="main-container">
+
+    <!-- Events Grid Section -->
+    <section id="eventsSection" class="content-section active">
+      <div class="section-header">
+        <h2>Upcoming Events</h2>
+        <span class="event-count" id="eventCount">Showing all events</span>
+      </div>
+      <div class="events-grid" id="eventsGrid">
+        <!-- Dynamic Cards Inserted Here via JS -->
+      </div>
+    </section>
+
+    <!-- Booking History Section -->
+    <section id="myBookingsSection" class="content-section hidden">
+      <div class="section-header">
+        <h2>My Ticket Bookings</h2>
+        <button class="btn btn-sm btn-outline" onclick="showSection('eventsSection')">← Back to Events</button>
+      </div>
+      <div id="bookingsList" class="bookings-grid">
+        <!-- Dynamic Bookings Inserted Here -->
+      </div>
+    </section>
+
+    <!-- Admin Panel Section -->
+    <section id="adminSection" class="content-section hidden">
+      <div class="section-header">
+        <h2>Admin Management Portal</h2>
+        <button class="btn btn-primary" onclick="openAddEventModal()">+ Add New Event</button>
+      </div>
+      <div class="admin-table-wrapper glass-panel">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Event Title</th>
+              <th>Category</th>
+              <th>Date</th>
+              <th>Price</th>
+              <th>Seats Left</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="adminEventTable">
+            <!-- Dynamic Admin Rows -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modals -->
+
+  <!-- Login Modal -->
+  <div class="modal-overlay hidden" id="loginModal">
+    <div class="modal-card glass-panel">
+      <div class="modal-header">
+        <h3>Login to EventPulse</h3>
+        <button class="close-btn" onclick="closeModal('loginModal')">&times;</button>
+      </div>
+      <form onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="loginEmail" required placeholder="name@example.com">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="loginPassword" required placeholder="••••••••">
+        </div>
+        <button type="submit" class="btn btn-primary btn-full">Sign In</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Register Modal -->
+  <div class="modal-overlay hidden" id="registerModal">
+    <div class="modal-card glass-panel">
+      <div class="modal-header">
+        <h3>Create Your Account</h3>
+        <button class="close-btn" onclick="closeModal('registerModal')">&times;</button>
+      </div>
+      <form onsubmit="handleRegister(event)">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="regName" required placeholder="John Doe">
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="regEmail" required placeholder="john@example.com">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="regPassword" required placeholder="••••••••">
+        </div>
+        <button type="submit" class="btn btn-primary btn-full">Register Account</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add / Edit Event Modal (Admin) -->
+  <div class="modal-overlay hidden" id="eventModal">
+    <div class="modal-card glass-panel">
+      <div class="modal-header">
+        <h3 id="modalTitleText">Add New Event</h3>
+        <button class="close-btn" onclick="closeModal('eventModal')">&times;</button>
+      </div>
+      <form onsubmit="handleSaveEvent(event)">
+        <input type="hidden" id="editEventId">
+        <div class="form-group">
+          <label>Event Name</label>
+          <input type="text" id="eventTitleInput" required placeholder="AI Innovation Summit 2026">
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select id="eventCategoryInput" required>
+            <option value="tech">Tech & AI</option>
+            <option value="music">Music</option>
+            <option value="design">Design</option>
+            <option value="business">Business</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Price ($)</label>
+            <input type="number" id="eventPriceInput" required min="0" placeholder="99">
+          </div>
+          <div class="form-group">
+            <label>Total Seats</label>
+            <input type="number" id="eventSeatsInput" required min="1" placeholder="100">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Date & Time</label>
+          <input type="date" id="eventDateInput" required>
+        </div>
+        <div class="form-group">
+          <label>Image URL</label>
+          <input type="text" id="eventImageInput" placeholder="https://images.unsplash.com/photo-...">
+        </div>
+        <button type="submit" class="btn btn-primary btn-full" id="saveEventBtn">Save Event</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Booking Modal -->
+  <div class="modal-overlay hidden" id="bookingModal">
+    <div class="modal-card glass-panel">
+      <div class="modal-header">
+        <h3>Confirm Ticket Booking</h3>
+        <button class="close-btn" onclick="closeModal('bookingModal')">&times;</button>
+      </div>
+      <div class="booking-summary" id="bookingSummary">
+        <!-- Dynamically populated -->
+      </div>
+      <form onsubmit="confirmBooking(event)">
+        <input type="hidden" id="bookingEventId">
+        <div class="form-group">
+          <label>Number of Tickets</label>
+          <input type="number" id="ticketCount" min="1" max="10" value="1" onchange="calculateTotal()" required>
+        </div>
+        <div class="price-breakdown">
+          <span>Total Price:</span>
+          <strong id="totalBookingPrice">$0</strong>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full">Pay & Confirm Tickets 🎟️</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Animated Success Celebration Overlay -->
+  <div class="booking-success-overlay hidden" id="successOverlay">
+    <div class="glass-panel success-card">
+      <div class="success-icon-wrapper">🎉</div>
+      <h2 style="font-size: 1.8rem; margin-bottom: 0.5rem;">Ticket Confirmed!</h2>
+      <p style="color: var(--text-secondary); margin-bottom: 1.5rem;" id="successOverlayMessage">Your tickets have been reserved successfully.</p>
+      <button class="btn btn-primary btn-full" onclick="closeSuccessOverlay()">View My Bookings 🎟️</button>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>Made By Dhriti Gupta</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

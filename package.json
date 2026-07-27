@@ -1,0 +1,13 @@
+{
+  "name": "smart-event-portal",
+  "version": "1.0.0",
+  "description": "Smart Event Management Portal - DevOps CI/CD Capstone Project",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test/app.test.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
