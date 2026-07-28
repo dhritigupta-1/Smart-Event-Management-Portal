@@ -38,7 +38,32 @@ let defaultReviews = [
   }
 ];
 
+// Default Sample FAQs (New in v2 - Admin Editable)
+let defaultFaqs = [
+  {
+    id: 1,
+    question: 'How do I receive my ticket after booking?',
+    answer: 'Once your booking is confirmed, your ticket stub is instantly generated and stored under your My Bookings section. You can view your unique ticket ID and booking breakdown anytime.'
+  },
+  {
+    id: 2,
+    question: 'Can I transfer or cancel my ticket?',
+    answer: 'Tickets can be managed directly through your account dashboard. For cancellations or name transfers, please reach out to our 24/7 support team or admin.'
+  },
+  {
+    id: 3,
+    question: 'How do organizers add new events?',
+    answer: 'System Administrators can access the dedicated Admin Management Panel to create, edit event pricing/seats, or remove past events in real time.'
+  },
+  {
+    id: 4,
+    question: 'Is the portal deployment containerized?',
+    answer: 'Yes! The entire application is containerized using Docker, deployed on Kubernetes (Minikube) with zero-downtime rolling updates, and managed via automated Jenkins CI/CD pipelines.'
+  }
+];
+
 let userReviews = JSON.parse(localStorage.getItem('userReviews')) || defaultReviews;
+let faqList = JSON.parse(localStorage.getItem('faqList')) || defaultFaqs;
 
 // 8 Events across 6 Distinct Categories
 let defaultEvents = [
@@ -117,9 +142,9 @@ let defaultEvents = [
 ];
 
 // Refresh cache for v2
-if (!localStorage.getItem('eventsVersion_v2')) {
+if (!localStorage.getItem('eventsVersion_v2_2')) {
   localStorage.removeItem('eventsData');
-  localStorage.setItem('eventsVersion_v2', 'true');
+  localStorage.setItem('eventsVersion_v2_2', 'true');
 }
 
 let eventsData = JSON.parse(localStorage.getItem('eventsData')) || defaultEvents;
@@ -131,6 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderUserSession();
   renderEvents();
   renderReviews();
+  renderFaqs();
 });
 
 // Fetch Version from Express Server Endpoint
@@ -146,7 +172,7 @@ async function fetchAppVersion() {
   }
 }
 
-// Render Events Grid with Search and Category Filtering (v2)
+// Render Events Grid with Search and Category Filtering
 function renderEvents() {
   const grid = document.getElementById('eventsGrid');
   grid.innerHTML = '';
@@ -191,7 +217,7 @@ function renderEvents() {
   });
 }
 
-// Search & Filter Logic (v2)
+// Search & Filter Logic
 function handleSearch() {
   searchQuery = document.getElementById('searchInput').value;
   renderEvents();
@@ -204,7 +230,7 @@ function filterCategory(category, pillBtn) {
   renderEvents();
 }
 
-// Light / Dark Theme Switcher (v2)
+// Light / Dark Theme Switcher
 function toggleTheme() {
   const html = document.documentElement;
   const currentTheme = html.getAttribute('data-theme');
@@ -213,7 +239,7 @@ function toggleTheme() {
   document.getElementById('themeIcon').innerText = newTheme === 'dark' ? '🌙' : '☀️';
 }
 
-// Customer Reviews Logic (v2)
+// Customer Reviews Logic (Admin restricted from posting reviews)
 function renderReviews() {
   const grid = document.getElementById('reviewsGrid');
   if (!grid) return;
@@ -240,6 +266,14 @@ function renderReviews() {
 
 function handleAddReview(e) {
   e.preventDefault();
+  
+  // Admin restricted from posting reviews
+  if (currentUser && currentUser.role === 'admin') {
+    alert('Access Restricted: Admins cannot post reviews. Reviews are reserved for event attendees!');
+    closeModal('addReviewModal');
+    return;
+  }
+
   const author = document.getElementById('reviewAuthorInput').value.trim();
   const rating = document.getElementById('reviewRatingInput').value;
   const comment = document.getElementById('reviewTextInput').value.trim();
@@ -259,7 +293,47 @@ function handleAddReview(e) {
   alert('Thank you! Your review has been published.');
 }
 
-// FAQ Accordion Toggle Logic (v2)
+// FAQ Accordion & Admin Add FAQ Logic
+function renderFaqs() {
+  const container = document.getElementById('faqContainer');
+  if (!container) return;
+  container.innerHTML = '';
+
+  faqList.forEach((faq, index) => {
+    const item = document.createElement('div');
+    item.className = `faq-item ${index === 0 ? 'active' : ''}`;
+    item.onclick = () => toggleFaq(item);
+    item.innerHTML = `
+      <div class="faq-question">
+        <span>${faq.question}</span>
+        <span class="faq-icon">${index === 0 ? '−' : '+'}</span>
+      </div>
+      <div class="faq-answer">
+        <p>${faq.answer}</p>
+      </div>
+    `;
+    container.appendChild(item);
+  });
+}
+
+function handleAddFaq(e) {
+  e.preventDefault();
+  if (!currentUser || currentUser.role !== 'admin') {
+    alert('Access Denied: Only Admin can add FAQs!');
+    return;
+  }
+
+  const question = document.getElementById('faqQuestionInput').value.trim();
+  const answer = document.getElementById('faqAnswerInput').value.trim();
+
+  const newFaq = { id: Date.now(), question, answer };
+  faqList.push(newFaq);
+  localStorage.setItem('faqList', JSON.stringify(faqList));
+  renderFaqs();
+  closeModal('addFaqModal');
+  alert('New FAQ published successfully!');
+}
+
 function toggleFaq(faqElement) {
   const isActive = faqElement.classList.contains('active');
   document.querySelectorAll('.faq-item').forEach(item => {
@@ -275,11 +349,14 @@ function toggleFaq(faqElement) {
   }
 }
 
-// User Auth Handling
+// User Auth Handling (Strict Admin restrictions)
 function renderUserSession() {
   const authContainer = document.getElementById('authContainer');
   const userProfile = document.getElementById('userProfile');
   const adminNavBtn = document.getElementById('adminNavBtn');
+  const myBookingsNavBtn = document.querySelector('button[onclick*="myBookingsSection"]');
+  const writeReviewBtn = document.getElementById('writeReviewBtn');
+  const adminAddFaqBtn = document.getElementById('adminAddFaqBtn');
 
   if (currentUser) {
     authContainer.classList.add('hidden');
@@ -288,12 +365,20 @@ function renderUserSession() {
 
     if (currentUser.role === 'admin') {
       adminNavBtn.classList.remove('hidden');
+      if (myBookingsNavBtn) myBookingsNavBtn.classList.add('hidden'); // Hide My Bookings for Admin
+      if (adminAddFaqBtn) adminAddFaqBtn.classList.remove('hidden');
+      if (writeReviewBtn) writeReviewBtn.classList.add('hidden'); // Hide Write a Review for Admin
     } else {
       adminNavBtn.classList.add('hidden');
+      if (myBookingsNavBtn) myBookingsNavBtn.classList.remove('hidden'); // Show My Bookings for Users
+      if (adminAddFaqBtn) adminAddFaqBtn.classList.add('hidden');
+      if (writeReviewBtn) writeReviewBtn.classList.remove('hidden'); // Show Write a Review for Users
     }
   } else {
     authContainer.classList.remove('hidden');
     userProfile.classList.add('hidden');
+    if (adminAddFaqBtn) adminAddFaqBtn.classList.add('hidden');
+    if (writeReviewBtn) writeReviewBtn.classList.remove('hidden');
   }
 }
 
@@ -363,7 +448,7 @@ function logout() {
   alert('Logged out successfully.');
 }
 
-// Section Switcher with Active Link Highlighting (v2)
+// Section Switcher
 function showSection(sectionId, clickedBtn) {
   if (sectionId === 'adminSection') {
     if (!currentUser || currentUser.role !== 'admin') {
@@ -384,12 +469,19 @@ function showSection(sectionId, clickedBtn) {
   if (sectionId === 'myBookingsSection') renderBookingsList();
   if (sectionId === 'adminSection') renderAdminTable();
   if (sectionId === 'reviewsSection') renderReviews();
+  if (sectionId === 'faqSection') renderFaqs();
 }
 
-// Booking Management
+// Booking Management (Admin Restricted)
 let activeBookingEvent = null;
 
 function openBookingModal(eventId) {
+  // Admin restricted from booking tickets
+  if (currentUser && currentUser.role === 'admin') {
+    alert('Access Restricted: Admin accounts cannot book event tickets! Please login as a standard user.');
+    return;
+  }
+
   if (!currentUser) {
     openModal('loginModal');
     const loginCard = document.querySelector('#loginModal .modal-card');
@@ -424,6 +516,13 @@ function calculateTotal() {
 
 function confirmBooking(e) {
   e.preventDefault();
+
+  if (currentUser && currentUser.role === 'admin') {
+    alert('Access Restricted: Admin accounts cannot book tickets!');
+    closeModal('bookingModal');
+    return;
+  }
+
   const count = parseInt(document.getElementById('ticketCount').value);
   
   if (count > activeBookingEvent.seats) {

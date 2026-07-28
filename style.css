@@ -781,6 +781,57 @@ body {
   gap: 1.2rem;
 }
 
+/* Admin Table Design & Spacing Fixes */
+.admin-table-wrapper {
+  overflow-x: auto;
+  padding: 2.5rem;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  text-align: left;
+}
+
+.admin-table th {
+  color: var(--text-secondary);
+  font-weight: 800;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 2px solid var(--border-subtle);
+  background: rgba(11, 15, 25, 0.4);
+}
+
+.admin-table td {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: middle;
+  font-size: 0.95rem;
+}
+
+.admin-table tbody tr {
+  transition: background-color 0.25s ease;
+}
+
+.admin-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* Fix category tag inside admin table rows (disable absolute positioning in table cells) */
+.admin-table .category-tag {
+  position: static !important;
+  display: inline-block;
+  transform: none !important;
+  box-shadow: none !important;
+  padding: 0.3rem 0.8rem !important;
+  font-size: 0.75rem !important;
+  font-weight: 800 !important;
+  vertical-align: middle;
+}
+
 .footer {
   text-align: center;
   padding: 2.5rem;

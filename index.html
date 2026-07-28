@@ -127,7 +127,7 @@
     <section id="reviewsSection" class="content-section hidden">
       <div class="section-header">
         <h2>What Attendees & Organizers Say</h2>
-        <button class="btn btn-primary" onclick="openModal('addReviewModal')">+ Write a Review</button>
+        <button class="btn btn-primary" id="writeReviewBtn" onclick="openModal('addReviewModal')">+ Write a Review</button>
       </div>
 
       <div class="reviews-grid" id="reviewsGrid">
@@ -135,52 +135,15 @@
       </div>
     </section>
 
-    <!-- FAQ Accordion Section (New in v2) -->
+    <!-- FAQ Accordion Section -->
     <section id="faqSection" class="content-section hidden">
       <div class="section-header">
         <h2>Frequently Asked Questions</h2>
+        <button class="btn btn-primary hidden" id="adminAddFaqBtn" onclick="openModal('addFaqModal')">+ Add FAQ</button>
       </div>
 
-      <div class="faq-container glass-panel">
-        <div class="faq-item active" onclick="toggleFaq(this)">
-          <div class="faq-question">
-            <span>How do I receive my ticket after booking?</span>
-            <span class="faq-icon">−</span>
-          </div>
-          <div class="faq-answer">
-            <p>Once your booking is confirmed, your ticket stub is instantly generated and stored under your <strong>My Bookings</strong> section. You can view your unique ticket ID and booking breakdown anytime.</p>
-          </div>
-        </div>
-
-        <div class="faq-item" onclick="toggleFaq(this)">
-          <div class="faq-question">
-            <span>Can I transfer or cancel my ticket?</span>
-            <span class="faq-icon">+</span>
-          </div>
-          <div class="faq-answer">
-            <p>Tickets can be managed directly through your account dashboard. For cancellations or name transfers, please reach out to our 24/7 support team or admin.</p>
-          </div>
-        </div>
-
-        <div class="faq-item" onclick="toggleFaq(this)">
-          <div class="faq-question">
-            <span>How do organizers add new events?</span>
-            <span class="faq-icon">+</span>
-          </div>
-          <div class="faq-answer">
-            <p>System Administrators can access the dedicated <strong>Admin Management Panel</strong> to create, edit event pricing/seats, or remove past events in real time.</p>
-          </div>
-        </div>
-
-        <div class="faq-item" onclick="toggleFaq(this)">
-          <div class="faq-question">
-            <span>Is the portal deployment containerized?</span>
-            <span class="faq-icon">+</span>
-          </div>
-          <div class="faq-answer">
-            <p>Yes! The entire application is containerized using Docker, deployed on Kubernetes (Minikube) with zero-downtime rolling updates, and managed via automated Jenkins CI/CD pipelines.</p>
-          </div>
-        </div>
+      <div class="faq-container glass-panel" id="faqContainer">
+        <!-- Dynamic FAQs -->
       </div>
     </section>
 
@@ -342,6 +305,27 @@
           <input type="text" id="reviewTextInput" required placeholder="Amazing event organization and smooth booking experience!">
         </div>
         <button type="submit" class="btn btn-primary btn-full">Post Review</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add FAQ Modal (Admin only) -->
+  <div class="modal-overlay hidden" id="addFaqModal">
+    <div class="modal-card glass-panel">
+      <div class="modal-header">
+        <h3>Add New FAQ</h3>
+        <button class="close-btn" onclick="closeModal('addFaqModal')">&times;</button>
+      </div>
+      <form onsubmit="handleAddFaq(event)">
+        <div class="form-group">
+          <label>Question</label>
+          <input type="text" id="faqQuestionInput" required placeholder="What is the refund policy?">
+        </div>
+        <div class="form-group">
+          <label>Answer</label>
+          <input type="text" id="faqAnswerInput" required placeholder="Refunds can be requested up to 48 hours before the event.">
+        </div>
+        <button type="submit" class="btn btn-primary btn-full">Post FAQ</button>
       </form>
     </div>
   </div>
