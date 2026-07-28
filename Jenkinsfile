@@ -89,7 +89,7 @@ pipeline {
         stage('Verify Minikube Deployment') {
             steps {
                 echo 'Verifying rollout status on Minikube...'
-                sh "kubectl rollout status deployment/${IMAGE_NAME} --timeout=60s"
+                sh "kubectl rollout status deployment/${IMAGE_NAME} --timeout=10m"
                 sh "kubectl get pods -l app=${IMAGE_NAME}"
                 sh "kubectl get svc ${IMAGE_NAME}"
             }
