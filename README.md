@@ -1,23 +1,41 @@
-# Smart Event Management Portal - DevOps CI/CD Deployment Project
+# Smart Event Management Portal (Version 2 - Completed)
 
-## Overview
-**Smart Event Management Portal** is an end-to-end containerized web application built for **ABC Solutions Pvt. Ltd.** to modernize and automate event bookings, user management, analytics, and deployments using **Docker**, **Minikube (Kubernetes)**, and **Jenkins CI/CD Pipelines**.
-
----
-
-## 🌟 Version Features Breakdown
-
-### 🔹 Version 1 (`v1` - Core Foundation)
-- User Authentication (Login & Registration modal workflow).
-- Event Browsing & Ticket Booking system.
-- User Booking History & Admin Management Panel (Add/Delete Events).
-- Base Dockerfile (`eventportal:v1`), Minikube deployment, and automated test suite.
+**Author**: Dhriti Gupta  
+**Project**: DevOps Capstone Project - ABC Solutions Pvt. Ltd.
 
 ---
 
-## 🚀 Quickstart - Running Locally
+## 📌 Project Status
+- **Version 1 (`v1.0`)**: Core Foundation (Auth, Events, Booking, Admin, Animations, Docker, Minikube, Jenkins) - **Completed**
+- **Version 2 (`v2.0`)**: Content & Feature Upgrades (About, Reviews, FAQ, Theme Toggle, Live Search, Category Filters, Rolling Deployment) - **Completed**
 
-### 1. Install & Run Node.js App
+---
+
+## 🚀 Summary of What Was Done in Version 2 (`v2.0`)
+
+### 1. New Content Sections Added
+- **ℹ️ About Us Section**: Company mission statement and animated statistics counters (50k+ Tickets Sold, 500+ Conferences Hosted, 99.9% System Uptime, 4.9 ★ Rating).
+- **⭐ Customer Reviews & Testimonials**: User review card grid with star ratings, reviewer avatars, and an interactive *"Write a Review"* submission modal.
+- **❓ FAQ Accordion Section**: Interactive expandable/collapsible questions & answers regarding ticket redemption, cancellation policies, organizer panel access, and Kubernetes infrastructure.
+
+### 2. New Feature Upgrades
+- **🌓 Light / Dark Theme Switcher**: Toggle button (`🌙 / ☀️`) in the navbar allowing users to switch seamlessly between crisp light and multi-color dark themes.
+- **🔍 Real-Time Live Search Bar**: Input bar in the navbar that dynamically filters events by title as the user types.
+- **Category Filter Pills**: Interactive filter buttons (`All`, `Tech`, `Security`, `Music`, `Design`, `Business`, `Crypto`) to filter event cards dynamically.
+- **Navbar Links**: Direct navigation buttons to switch between **Events**, **About Us**, **Reviews**, and **FAQ** sections.
+
+### 3. DevOps & Infrastructure Changes for Version 2
+- **Node.js Express Server**: `server.js` updated to serve version indicator `v2.0` on `/api/version`.
+- **Automated Tests**: `test/app.test.js` updated to validate Version 2 deployment assertions (`npm test`).
+- **Jenkins Pipeline**: `Jenkinsfile` updated with environment variable `IMAGE_TAG = 'v2'`.
+- **Docker Image Versioning**: Images built and tagged as `event:v2` and `dhritigupta/event:v2`.
+- **Kubernetes Zero-Downtime Rolling Update**: Commands configured to perform zero-downtime rolling updates on Minikube via `kubectl set image deployment/event event=dhritigupta/event:v2`.
+
+---
+
+## 🛠️ Step-by-Step Execution Guide
+
+### 1. Run Application Locally
 ```bash
 npm install
 npm test
@@ -27,100 +45,43 @@ Access the application at `http://localhost:3000`.
 
 ---
 
-## 🐳 Phase 2 - Docker Commands & Execution
+### 2. Docker Container Commands (Version 1 vs Version 2)
 
-### Task 1: Build Docker Image (v1, v2, v3)
+#### Build & Run Version 1:
 ```bash
-# Build Version 1
-docker build -t eventportal:v1 --build-arg APP_VERSION=v1 .
-
-# Build Version 2
-docker build -t eventportal:v2 --build-arg APP_VERSION=v2 .
-
-# Build Version 3
-docker build -t eventportal:v3 --build-arg APP_VERSION=v3 .
+docker build -t event:v1 -t dhritigupta/event:v1 .
+docker run -d -p 3000:3000 --name event_v1 event:v1
 ```
 
-### Task 2: Run Container
+#### Build & Run Version 2:
 ```bash
-docker run -d -p 3000:3000 --name eventportal eventportal:v1
-```
-
-### Task 3: Container Management Commands
-```bash
-docker ps                   # List running containers
-docker logs eventportal     # View container logs
-docker inspect eventportal  # Inspect container metadata
-docker exec -it eventportal sh  # Execute interactive shell inside container
-docker stop eventportal    # Stop container
-docker rm eventportal      # Remove container
+docker build -t event:v2 -t dhritigupta/event:v2 .
+docker run -d -p 3000:3000 --name event_v2 event:v2
 ```
 
 ---
 
-## ☸️ Phase 3 - Minikube Deployment (Direct Commands)
+### 3. Minikube Kubernetes Zero-Downtime Rolling Update
 
-As requested, deployments are managed directly using **Minikube CLI / `kubectl` imperative commands** (without standalone static `.yaml` manifest files):
-
-### 1. Start Minikube Cluster
+#### Step 1: Deploy Version 1 initially
 ```bash
 minikube start
+kubectl create deployment event --image=dhritigupta/event:v1 --dry-run=client -o yaml | kubectl apply -f -
+kubectl expose deployment event --type=NodePort --port=3000 --dry-run=client -o yaml | kubectl apply -f -
+minikube service event
 ```
 
-### 2. Create Deployment & Service in Minikube
+#### Step 2: Perform Zero-Downtime Rolling Update to Version 2
 ```bash
-# Create deployment using v1 image
-kubectl create deployment eventportal --image=eventportal:v1
-
-# Expose deployment on NodePort
-kubectl expose deployment eventportal --type=NodePort --port=3000
-
-# View service URL in Minikube
-minikube service eventportal --url
+kubectl set image deployment/event event=dhritigupta/event:v2
 ```
 
-### 3. Scaling Replicas (High Traffic Simulation)
+#### Step 3: Verify Rolling Update Status
 ```bash
-kubectl scale deployment/eventportal --replicas=3
-kubectl scale deployment/eventportal --replicas=5
-kubectl get pods -w
+kubectl rollout status deployment/event
 ```
 
-### 4. Zero Downtime Rolling Update (Deploying v2 & v3)
+#### Step 4: Automated Rollback (if needed)
 ```bash
-# Perform rolling update to v2
-kubectl set image deployment/eventportal eventportal=eventportal:v2
-kubectl rollout status deployment/eventportal
-
-# Perform rolling update to v3
-kubectl set image deployment/eventportal eventportal=eventportal:v3
-kubectl rollout status deployment/eventportal
+kubectl rollout undo deployment/event
 ```
-
-### 5. Automated Rollback
-```bash
-# View rollout history
-kubectl rollout history deployment/eventportal
-
-# Undo rollout / Rollback to previous version
-kubectl rollout undo deployment/eventportal
-```
-
----
-
-## 🔄 Phase 4 - Jenkins CI/CD Pipeline
-
-The repository includes a declarative `Jenkinsfile` automating:
-1. **Checkout**: Pulls latest repository code.
-2. **Test**: Executes `npm test` sanity checks.
-3. **Docker Build & Push**: Tags and pushes versioned images to Docker Hub.
-4. **Deploy to Minikube**: Executes zero-downtime rolling update directly to the Minikube cluster via `kubectl set image`.
-5. **Rollback Trigger**: Automatically issues `kubectl rollout undo` if readiness checks or verification steps fail.
-
----
-
-## 💡 Innovation Challenge Report
-
-1. **Dynamic Responsive Dark/Light Theme Token System**: Seamless user experience adjustment using CSS root custom variables.
-2. **Real-time Live Analytics & Metric Charts**: Interactive visualization of event sales and ticket distribution built with lightweight pure CSS animations.
-3. **Zero-Downtime Direct Minikube Rollout Automation**: Optimized pipeline executing direct rollout updates and rollback logic natively within Minikube environments.
