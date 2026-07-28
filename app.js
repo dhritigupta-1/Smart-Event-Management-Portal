@@ -1,6 +1,9 @@
-// App State Management (Version 1 - Multi-Color Theme)
+// App State Management (Version 2.0 - Features Upgrade)
+let currentVersion = 'v2.0';
 let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
 let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+let currentCategoryFilter = 'all';
+let searchQuery = '';
 
 // Built-in System Admin Account
 const SYSTEM_ADMIN = {
@@ -9,6 +12,33 @@ const SYSTEM_ADMIN = {
   password: 'admin123',
   role: 'admin'
 };
+
+// Default Sample Reviews (New in v2)
+let defaultReviews = [
+  {
+    id: 1,
+    author: 'Sarah Jenkins',
+    rating: '5',
+    comment: 'The DevOps Summit was organized flawlessly! Instant ticket delivery and crystal-clear event schedules.',
+    date: '2026-07-20'
+  },
+  {
+    id: 2,
+    author: 'Marcus Vance',
+    rating: '5',
+    comment: 'Booking tickets took under 10 seconds. The seat selector and modern interface are top-notch!',
+    date: '2026-07-22'
+  },
+  {
+    id: 3,
+    author: 'Elena Rostova',
+    rating: '4',
+    comment: 'Great selection of tech and design summits. Really impressed by the seamless containerized platform.',
+    date: '2026-07-25'
+  }
+];
+
+let userReviews = JSON.parse(localStorage.getItem('userReviews')) || defaultReviews;
 
 // 8 Events across 6 Distinct Categories
 let defaultEvents = [
@@ -86,25 +116,57 @@ let defaultEvents = [
   }
 ];
 
-// Refresh events cache on load
-localStorage.removeItem('eventsData');
-let eventsData = defaultEvents;
+// Refresh cache for v2
+if (!localStorage.getItem('eventsVersion_v2')) {
+  localStorage.removeItem('eventsData');
+  localStorage.setItem('eventsVersion_v2', 'true');
+}
+
+let eventsData = JSON.parse(localStorage.getItem('eventsData')) || defaultEvents;
 let userBookings = JSON.parse(localStorage.getItem('userBookings')) || [];
 
 // Initialize Application
 document.addEventListener('DOMContentLoaded', () => {
+  fetchAppVersion();
   renderUserSession();
   renderEvents();
+  renderReviews();
 });
 
-// Render Events Cards Grid
+// Fetch Version from Express Server Endpoint
+async function fetchAppVersion() {
+  try {
+    const response = await fetch('/api/version');
+    const data = await response.json();
+    currentVersion = data.version || 'v2.0';
+    const badge = document.getElementById('versionBadge');
+    if (badge) badge.innerText = currentVersion.toUpperCase();
+  } catch (err) {
+    console.log('Running standalone mode (v2 default)');
+  }
+}
+
+// Render Events Grid with Search and Category Filtering (v2)
 function renderEvents() {
   const grid = document.getElementById('eventsGrid');
   grid.innerHTML = '';
 
-  document.getElementById('eventCount').innerText = `Showing ${eventsData.length} upcoming events`;
+  let filtered = eventsData.filter(event => {
+    const matchesCategory = currentCategoryFilter === 'all' || event.category === currentCategoryFilter;
+    const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
-  eventsData.forEach((event, index) => {
+  document.getElementById('eventCount').innerText = `Showing ${filtered.length} of ${eventsData.length} events`;
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 4rem; color: var(--text-secondary);" class="glass-panel">
+      <p style="font-size: 1.2rem;">🔍 No events found matching "${searchQuery}".</p>
+    </div>`;
+    return;
+  }
+
+  filtered.forEach((event, index) => {
     const card = document.createElement('div');
     card.className = 'event-card glass-panel';
     card.style.animationDelay = `${index * 0.08}s`;
@@ -129,6 +191,90 @@ function renderEvents() {
   });
 }
 
+// Search & Filter Logic (v2)
+function handleSearch() {
+  searchQuery = document.getElementById('searchInput').value;
+  renderEvents();
+}
+
+function filterCategory(category, pillBtn) {
+  currentCategoryFilter = category;
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  pillBtn.classList.add('active');
+  renderEvents();
+}
+
+// Light / Dark Theme Switcher (v2)
+function toggleTheme() {
+  const html = document.documentElement;
+  const currentTheme = html.getAttribute('data-theme');
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', newTheme);
+  document.getElementById('themeIcon').innerText = newTheme === 'dark' ? '🌙' : '☀️';
+}
+
+// Customer Reviews Logic (v2)
+function renderReviews() {
+  const grid = document.getElementById('reviewsGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  userReviews.forEach(r => {
+    const card = document.createElement('div');
+    card.className = 'glass-panel review-card';
+    const stars = '⭐'.repeat(parseInt(r.rating));
+    card.innerHTML = `
+      <div class="review-header">
+        <div class="review-avatar">${r.author.charAt(0)}</div>
+        <div>
+          <div class="review-author">${r.author}</div>
+          <div class="review-rating">${stars}</div>
+        </div>
+      </div>
+      <p class="review-comment">"${r.comment}"</p>
+      <small style="color: var(--text-muted);">${r.date}</small>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function handleAddReview(e) {
+  e.preventDefault();
+  const author = document.getElementById('reviewAuthorInput').value.trim();
+  const rating = document.getElementById('reviewRatingInput').value;
+  const comment = document.getElementById('reviewTextInput').value.trim();
+
+  const newReview = {
+    id: Date.now(),
+    author,
+    rating,
+    comment,
+    date: new Date().toLocaleDateString()
+  };
+
+  userReviews.unshift(newReview);
+  localStorage.setItem('userReviews', JSON.stringify(userReviews));
+  renderReviews();
+  closeModal('addReviewModal');
+  alert('Thank you! Your review has been published.');
+}
+
+// FAQ Accordion Toggle Logic (v2)
+function toggleFaq(faqElement) {
+  const isActive = faqElement.classList.contains('active');
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.classList.remove('active');
+    const icon = item.querySelector('.faq-icon');
+    if (icon) icon.innerText = '+';
+  });
+
+  if (!isActive) {
+    faqElement.classList.add('active');
+    const icon = faqElement.querySelector('.faq-icon');
+    if (icon) icon.innerText = '−';
+  }
+}
+
 // User Auth Handling
 function renderUserSession() {
   const authContainer = document.getElementById('authContainer');
@@ -151,7 +297,6 @@ function renderUserSession() {
   }
 }
 
-// Public Register: Standard Users Only
 function handleRegister(e) {
   e.preventDefault();
   const name = document.getElementById('regName').value.trim();
@@ -182,7 +327,6 @@ function handleRegister(e) {
   openModal('loginModal');
 }
 
-// Login Handle
 function handleLogin(e) {
   e.preventDefault();
   const email = document.getElementById('loginEmail').value.trim().toLowerCase();
@@ -219,8 +363,8 @@ function logout() {
   alert('Logged out successfully.');
 }
 
-// Section Switcher
-function showSection(sectionId) {
+// Section Switcher with Active Link Highlighting (v2)
+function showSection(sectionId, clickedBtn) {
   if (sectionId === 'adminSection') {
     if (!currentUser || currentUser.role !== 'admin') {
       alert('Access Denied: Only Admin can access the Admin Panel!');
@@ -232,8 +376,14 @@ function showSection(sectionId) {
   const target = document.getElementById(sectionId);
   if (target) target.classList.remove('hidden');
 
+  if (clickedBtn && clickedBtn.classList.contains('nav-link-btn')) {
+    document.querySelectorAll('.nav-link-btn').forEach(btn => btn.classList.remove('active'));
+    clickedBtn.classList.add('active');
+  }
+
   if (sectionId === 'myBookingsSection') renderBookingsList();
   if (sectionId === 'adminSection') renderAdminTable();
+  if (sectionId === 'reviewsSection') renderReviews();
 }
 
 // Booking Management
@@ -241,11 +391,10 @@ let activeBookingEvent = null;
 
 function openBookingModal(eventId) {
   if (!currentUser) {
-    // Trigger animated modal shake & redirect to login
     openModal('loginModal');
     const loginCard = document.querySelector('#loginModal .modal-card');
     loginCard.classList.remove('shake-modal');
-    void loginCard.offsetWidth; // Force CSS reflow
+    void loginCard.offsetWidth;
     loginCard.classList.add('shake-modal');
     setTimeout(() => loginCard.classList.remove('shake-modal'), 600);
     return;
@@ -300,7 +449,6 @@ function confirmBooking(e) {
   renderEvents();
   closeModal('bookingModal');
 
-  // Trigger Celebration Success Burst Animation
   document.getElementById('successOverlayMessage').innerText = `You have successfully reserved ${count} ticket(s) for "${activeBookingEvent.title}".`;
   document.getElementById('successOverlay').classList.remove('hidden');
 }
@@ -352,7 +500,7 @@ function renderBookingsList() {
   });
 }
 
-// Admin Operations (Add, Edit, Delete Events)
+// Admin Operations
 function renderAdminTable() {
   if (!currentUser || currentUser.role !== 'admin') return;
 

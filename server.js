@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
-const VERSION = process.env.APP_VERSION || 'v1';
+const VERSION = process.env.APP_VERSION || 'v2';
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, './')));

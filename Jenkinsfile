@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = 'event'
-        IMAGE_TAG = 'v1'
+        IMAGE_TAG = 'v2'
         DOCKER_HUB_REPO = 'dhritigupta/event'
         DOCKER_HUB_CREDENTIALS_ID = 'Docker_Login'
     }
@@ -76,7 +76,7 @@ pipeline {
             kubectl create deployment ${IMAGE_NAME} --image=${DOCKER_HUB_REPO}:${IMAGE_TAG}
 
             kubectl get service ${IMAGE_NAME} || \
-            kubectl expose deployment ${IMAGE_NAME} --type=NodePort --port=3000
+            kubectl expose deployment ${IMAGE_NAME} --port=3000
 
             kubectl set image deployment/${IMAGE_NAME} ${IMAGE_NAME}=${DOCKER_HUB_REPO}:${IMAGE_TAG}
 

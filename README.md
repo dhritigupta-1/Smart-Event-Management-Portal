@@ -1,44 +1,23 @@
-# Smart Event Management Portal (Version 1 - Completed)
+# Smart Event Management Portal - DevOps CI/CD Deployment Project
 
-**Author**: Dhriti Gupta  
-**Project**: DevOps Capstone Project - ABC Solutions Pvt. Ltd.
-
----
-
-## 📌 Project Status
-**Completed Version**: **Version 1 (`v1.0`)**
+## Overview
+**Smart Event Management Portal** is an end-to-end containerized web application built for **ABC Solutions Pvt. Ltd.** to modernize and automate event bookings, user management, analytics, and deployments using **Docker**, **Minikube (Kubernetes)**, and **Jenkins CI/CD Pipelines**.
 
 ---
 
-## 🚀 Summary of What Was Built
+## 🌟 Version Features Breakdown
 
-### 1. Web Application (`v1.0`)
-- **Interactive Event Management SPA**: Modern responsive Web Application built for ABC Solutions Pvt. Ltd.
-- **User Authentication**: Registration & Login workflow (Users must register before logging in).
-- **Single System Admin**: Dedicated System Admin account (`admin@event.com` / `admin123`) with exclusive access to the Admin Panel.
-- **Event Management (Admin)**: Real-time Admin capabilities to **Add**, **Edit**, and **Delete** events.
-- **Ticket Booking System**: Interactive seat selector, live price calculations, and instant ticket reservation.
-- **Interactive My Bookings Section**: Ticket Stub grid view featuring unique ticket ID codes (`#badge`) and summary details.
-- **Animations & UX**:
-  - Modal Shake error animation (`modalShake`) when unauthenticated users attempt to book tickets.
-  - Celebration Success Burst overlay (`successPop` & `pulseCheck`) upon ticket confirmation.
-  - Card entrance spring animations, shimmer light sweeps on hover, and logo pulsing.
-  - 6 distinct category color badges (Tech, Security, Music, Design, Business, Crypto).
-  - Merged Hero section purple gradient across Navbar and Footer.
-  - Footer displaying strictly: `Made By Dhriti Gupta`.
-
-### 2. DevOps & Infrastructure Setup
-- **Express Production Server**: `server.js` running on Node.js 20 with `/healthz` liveness probe and `/api/version` endpoints.
-- **Docker Containerization**: Standardized `Dockerfile` built on `node:20` exposing port 3000.
-- **Minikube Deployment**: Supported via CLI commands (`kubectl create deployment`, `kubectl expose`, `kubectl scale`, `kubectl rollout undo`).
-- **Jenkins CI/CD Pipeline**: Declarative `Jenkinsfile` executing Checkout, `npm test`, Docker Build/Push using Jenkins Credentials ID `Docker_Login`, and automated Minikube deployment & rollback.
-- **Automated Testing**: `test/app.test.js` sanity test suite verified via `npm test`.
+### 🔹 Version 1 (`v1` - Core Foundation)
+- User Authentication (Login & Registration modal workflow).
+- Event Browsing & Ticket Booking system.
+- User Booking History & Admin Management Panel (Add/Delete Events).
+- Base Dockerfile (`eventportal:v1`), Minikube deployment, and automated test suite.
 
 ---
 
-## 🛠️ Step-by-Step Execution Guide
+## 🚀 Quickstart - Running Locally
 
-### 1. Run Application Locally
+### 1. Install & Run Node.js App
 ```bash
 npm install
 npm test
@@ -48,35 +27,65 @@ Access the application at `http://localhost:3000`.
 
 ---
 
-### 2. Docker Container Commands
-```bash
-# Build Version 1 Image
-docker build -t event:v1 .
+## 🐳 Phase 2 - Docker Commands & Execution
 
-# Run Container Locally
-docker run -d -p 3000:3000 --name event_v1 event:v1
+### Task 1: Build Docker Image (v1, v2, v3)
+```bash
+# Build Version 1
+docker build -t eventportal:v1 --build-arg APP_VERSION=v1 .
+
+# Build Version 2
+docker build -t eventportal:v2 --build-arg APP_VERSION=v2 .
+
+# Build Version 3
+docker build -t eventportal:v3 --build-arg APP_VERSION=v3 .
+```
+
+### Task 2: Run Container
+```bash
+docker run -d -p 3000:3000 --name eventportal eventportal:v1
+```
+
+### Task 3: Container Management Commands
+```bash
+docker ps                   # List running containers
+docker logs eventportal     # View container logs
+docker inspect eventportal  # Inspect container metadata
+docker exec -it eventportal sh  # Execute interactive shell inside container
+docker stop eventportal    # Stop container
+docker rm eventportal      # Remove container
 ```
 
 ---
 
-### 3. Minikube Kubernetes Commands (Imperative CLI Deployment)
+## ☸️ Phase 3 - Minikube Deployment (Direct Commands)
+
+As requested, deployments are managed directly using **Minikube CLI / `kubectl` imperative commands** (without standalone static `.yaml` manifest files):
+
+### 1. Start Minikube Cluster
 ```bash
-# Start Minikube Cluster
 minikube start
+```
 
-# Create Deployment on Minikube
-kubectl create deployment event --image=dhritigupta/event:v1
+### 2. Create Deployment & Service in Minikube
+```bash
+# Create deployment using v1 image
+kubectl create deployment eventportal --image=eventportal:v1
 
-# Expose Deployment on NodePort Service
-kubectl expose deployment event --type=NodePort --port=3000
+# Expose deployment on NodePort
+kubectl expose deployment eventportal --type=NodePort --port=3000
 
-# Get Minikube Service URL
-minikube service event
+# View service URL in Minikube
+minikube service eventportal --url
+```
 
-# Scale Replicas
-kubectl scale deployment/event --replicas=3
+### 3. Scaling Replicas (High Traffic Simulation)
+```bash
+kubectl scale deployment/eventportal --replicas=3
+kubectl scale deployment/eventportal --replicas=5
+kubectl get pods -w
+```
 
-<<<<<<< Updated upstream
 ### 4. Zero Downtime Rolling Update (Deploying v2 & v3)
 ```bash
 # Perform rolling update to v2
@@ -115,8 +124,3 @@ The repository includes a declarative `Jenkinsfile` automating:
 1. **Dynamic Responsive Dark/Light Theme Token System**: Seamless user experience adjustment using CSS root custom variables.
 2. **Real-time Live Analytics & Metric Charts**: Interactive visualization of event sales and ticket distribution built with lightweight pure CSS animations.
 3. **Zero-Downtime Direct Minikube Rollout Automation**: Optimized pipeline executing direct rollout updates and rollback logic natively within Minikube environments.
-=======
-# Rollback Deployment (if needed)
-kubectl rollout undo deployment/event
-```
->>>>>>> Stashed changes

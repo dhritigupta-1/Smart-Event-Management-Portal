@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Event Management Portal | ABC Solutions</title>
+  <title>Smart Event Management Portal | ABC Solutions (v2.0)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -17,9 +17,28 @@
       <div class="logo" onclick="showSection('eventsSection')">
         <span class="logo-icon">⚡</span>
         <span class="logo-text">Event<span class="highlight">Pulse</span></span>
+        <span class="version-badge" id="versionBadge">v2.0</span>
+      </div>
+
+      <div class="nav-links">
+        <button class="nav-link-btn active" onclick="showSection('eventsSection', this)">Events</button>
+        <button class="nav-link-btn" onclick="showSection('aboutSection', this)">About Us</button>
+        <button class="nav-link-btn" onclick="showSection('reviewsSection', this)">Reviews</button>
+        <button class="nav-link-btn" onclick="showSection('faqSection', this)">FAQ</button>
       </div>
 
       <div class="nav-actions">
+        <!-- Live Search Bar -->
+        <div class="search-box">
+          <input type="text" id="searchInput" placeholder="Search events..." oninput="handleSearch()">
+          <span class="search-icon">🔍</span>
+        </div>
+
+        <!-- Light / Dark Theme Switcher -->
+        <button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle Light/Dark Theme">
+          <span id="themeIcon">🌙</span>
+        </button>
+
         <div class="auth-buttons" id="authContainer">
           <button class="btn btn-outline" onclick="openModal('loginModal')">Login</button>
           <button class="btn btn-primary" onclick="openModal('registerModal')">Register</button>
@@ -49,11 +68,119 @@
     <!-- Events Grid Section -->
     <section id="eventsSection" class="content-section active">
       <div class="section-header">
-        <h2>Upcoming Events</h2>
+        <div>
+          <h2>Upcoming Events</h2>
+          <!-- Category Filter Pills -->
+          <div class="category-pills">
+            <button class="pill active" onclick="filterCategory('all', this)">All</button>
+            <button class="pill" onclick="filterCategory('tech', this)">💻 Tech & AI</button>
+            <button class="pill" onclick="filterCategory('security', this)">🛡️ Security</button>
+            <button class="pill" onclick="filterCategory('music', this)">🎵 Music</button>
+            <button class="pill" onclick="filterCategory('design', this)">🎨 Design</button>
+            <button class="pill" onclick="filterCategory('business', this)">🚀 Business</button>
+            <button class="pill" onclick="filterCategory('crypto', this)">⚡ Crypto</button>
+          </div>
+        </div>
         <span class="event-count" id="eventCount">Showing all events</span>
       </div>
       <div class="events-grid" id="eventsGrid">
         <!-- Dynamic Cards Inserted Here via JS -->
+      </div>
+    </section>
+
+    <!-- About Us Section (New in v2) -->
+    <section id="aboutSection" class="content-section hidden">
+      <div class="section-header">
+        <h2>About Smart Event Management</h2>
+      </div>
+
+      <div class="about-hero glass-panel">
+        <h3 class="about-title">Empowering Seamless Global Experiences</h3>
+        <p class="about-text">
+          Smart Event Management Portal (EventPulse) is an enterprise-grade platform developed for ABC Solutions Pvt. Ltd. 
+          We bridge event organizers with thousands of attendees worldwide, offering real-time seat availability, frictionless ticket booking, 
+          and containerized cloud infrastructure powered by Docker, Kubernetes, and Jenkins.
+        </p>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-number">50,000+</span>
+            <span class="stat-label">Tickets Sold</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-number">500+</span>
+            <span class="stat-label">Conferences Hosted</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-number">99.9%</span>
+            <span class="stat-label">System Uptime</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-number">4.9 ★</span>
+            <span class="stat-label">User Satisfaction</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Customer Reviews & Testimonials Section (New in v2) -->
+    <section id="reviewsSection" class="content-section hidden">
+      <div class="section-header">
+        <h2>What Attendees & Organizers Say</h2>
+        <button class="btn btn-primary" onclick="openModal('addReviewModal')">+ Write a Review</button>
+      </div>
+
+      <div class="reviews-grid" id="reviewsGrid">
+        <!-- Dynamic Review Cards Inserted Here -->
+      </div>
+    </section>
+
+    <!-- FAQ Accordion Section (New in v2) -->
+    <section id="faqSection" class="content-section hidden">
+      <div class="section-header">
+        <h2>Frequently Asked Questions</h2>
+      </div>
+
+      <div class="faq-container glass-panel">
+        <div class="faq-item active" onclick="toggleFaq(this)">
+          <div class="faq-question">
+            <span>How do I receive my ticket after booking?</span>
+            <span class="faq-icon">−</span>
+          </div>
+          <div class="faq-answer">
+            <p>Once your booking is confirmed, your ticket stub is instantly generated and stored under your <strong>My Bookings</strong> section. You can view your unique ticket ID and booking breakdown anytime.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-question">
+            <span>Can I transfer or cancel my ticket?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            <p>Tickets can be managed directly through your account dashboard. For cancellations or name transfers, please reach out to our 24/7 support team or admin.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-question">
+            <span>How do organizers add new events?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            <p>System Administrators can access the dedicated <strong>Admin Management Panel</strong> to create, edit event pricing/seats, or remove past events in real time.</p>
+          </div>
+        </div>
+
+        <div class="faq-item" onclick="toggleFaq(this)">
+          <div class="faq-question">
+            <span>Is the portal deployment containerized?</span>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">
+            <p>Yes! The entire application is containerized using Docker, deployed on Kubernetes (Minikube) with zero-downtime rolling updates, and managed via automated Jenkins CI/CD pipelines.</p>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -160,9 +287,11 @@
           <label>Category</label>
           <select id="eventCategoryInput" required>
             <option value="tech">Tech & AI</option>
+            <option value="security">Security</option>
             <option value="music">Music</option>
             <option value="design">Design</option>
             <option value="business">Business</option>
+            <option value="crypto">Crypto</option>
           </select>
         </div>
         <div class="form-row">
@@ -184,6 +313,35 @@
           <input type="text" id="eventImageInput" placeholder="https://images.unsplash.com/photo-...">
         </div>
         <button type="submit" class="btn btn-primary btn-full" id="saveEventBtn">Save Event</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Write Review Modal (New in v2) -->
+  <div class="modal-overlay hidden" id="addReviewModal">
+    <div class="modal-card glass-panel">
+      <div class="modal-header">
+        <h3>Submit Your Experience</h3>
+        <button class="close-btn" onclick="closeModal('addReviewModal')">&times;</button>
+      </div>
+      <form onsubmit="handleAddReview(event)">
+        <div class="form-group">
+          <label>Your Name</label>
+          <input type="text" id="reviewAuthorInput" required placeholder="Alex Rivera">
+        </div>
+        <div class="form-group">
+          <label>Rating</label>
+          <select id="reviewRatingInput" required>
+            <option value="5">⭐⭐⭐⭐⭐ (5 Stars - Excellent)</option>
+            <option value="4">⭐⭐⭐⭐ (4 Stars - Great)</option>
+            <option value="3">⭐⭐⭐ (3 Stars - Average)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Review Comment</label>
+          <input type="text" id="reviewTextInput" required placeholder="Amazing event organization and smooth booking experience!">
+        </div>
+        <button type="submit" class="btn btn-primary btn-full">Post Review</button>
       </form>
     </div>
   </div>
